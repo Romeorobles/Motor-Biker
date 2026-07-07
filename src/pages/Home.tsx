@@ -1,8 +1,9 @@
 function Home() {
   return (
     <div>
-      <h1>Motor-Biker</h1>
-      <p>Página de inicio del proyecto integrador de venta de motos.</p>
+      <h1>Home Page</h1>
+      <p>Bienvenido a una App con Router</p>
+      <p>Autor: Romeo Robles</p>
     </div>
   )
 }
