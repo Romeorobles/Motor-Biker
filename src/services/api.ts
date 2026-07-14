@@ -8,6 +8,7 @@ export interface Moto {
   precio: number;
   stock: number;
   categoria_id?: string;
+  categoria_nombre?: string;
   tipo_motor_id?: string;
   tipo_motor_nombre?: string;
   estado_id?: string;
@@ -32,6 +33,12 @@ export interface TipoMotor {
   descripcion?: string;
 }
 
+export interface Categoria {
+  id: string;
+  nombre: string;
+  descripcion?: string;
+}
+
 export const API_URL = 'http://localhost:3000';
 
 // Mock data of high-quality bikes with the professional images generated earlier
@@ -40,6 +47,7 @@ export const MOCK_MOTOS: Moto[] = [
     id: 'f87a3b34-8c8d-4a1b-9e4f-2d7c5e8b1a3d',
     modelo: 'Panigale V4 S',
     marca_nombre: 'Ducati',
+    categoria_nombre: 'Deportiva',
     anio: 2024,
     cilindraje: 1103,
     precio: 31500,
@@ -52,6 +60,7 @@ export const MOCK_MOTOS: Moto[] = [
     id: 'a91b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d',
     modelo: 'Fat Boy 114',
     marca_nombre: 'Harley-Davidson',
+    categoria_nombre: 'Cruiser',
     anio: 2023,
     cilindraje: 1868,
     precio: 26800,
@@ -64,6 +73,7 @@ export const MOCK_MOTOS: Moto[] = [
     id: 'c1d2e3f4-a5b6-c7d8-e9f0-1a2b3c4d5e6f',
     modelo: 'Vespa Elettrica',
     marca_nombre: 'Piaggio',
+    categoria_nombre: 'Urbana',
     anio: 2024,
     cilindraje: 150, // Equivalente de potencia
     precio: 7999,
@@ -76,6 +86,7 @@ export const MOCK_MOTOS: Moto[] = [
     id: 'e5f6a7b8-c9d0-e1f2-a3b4-c5d6e7f8a9b0',
     modelo: 'R 1250 GS Adventure',
     marca_nombre: 'BMW',
+    categoria_nombre: 'Adventure',
     anio: 2022,
     cilindraje: 1254,
     precio: 24500,
@@ -104,23 +115,26 @@ export async function fetchMotos(): Promise<Moto[]> {
       return MOCK_MOTOS;
     }
 
-    // Opcionalmente resolvemos marcas, estados y motores si el backend provee los endpoints
+    // Opcionalmente resolvemos marcas, estados, motores y categorías si el backend provee los endpoints
     // Intentamos resolver de manera paralela con fallbacks
-    const [marcas, estados, motores] = await Promise.all([
+    const [marcas, estados, motores, categorias] = await Promise.all([
       fetchMarcas().catch(() => []),
       fetchEstados().catch(() => []),
       fetchMotores().catch(() => []),
+      fetchCategorias().catch(() => []),
     ]);
 
     const marcasMap = new Map(marcas.map(m => [m.id, m.nombre]));
     const estadosMap = new Map(estados.map(e => [e.id, e.nombre]));
     const motoresMap = new Map(motores.map(m => [m.id, m.nombre]));
+    const categoriasMap = new Map(categorias.map(c => [c.id, c.nombre]));
 
     return motosRaw.map(moto => ({
       ...moto,
       marca_nombre: moto.marca_id ? marcasMap.get(moto.marca_id) || 'Marca Desconocida' : undefined,
       estado_nombre: moto.estado_id ? estadosMap.get(moto.estado_id) || 'Estado Desconocido' : undefined,
       tipo_motor_nombre: moto.tipo_motor_id ? motoresMap.get(moto.tipo_motor_id) || 'Motor Desconocido' : undefined,
+      categoria_nombre: moto.categoria_id ? categoriasMap.get(moto.categoria_id) || 'Categoría Desconocida' : undefined,
       precio: Number(moto.precio),
       imagen_url: moto.imagen_url || '/sport_bike.jpg', // Imagen de stock si no tiene
     }));
@@ -202,6 +216,13 @@ async function fetchEstados(): Promise<EstadoMoto[]> {
 
 async function fetchMotores(): Promise<TipoMotor[]> {
   const res = await fetch(`${API_URL}/tipo-motor`);
+  if (!res.ok) throw new Error();
+  const json = await res.json();
+  return json.data?.items || json.data || [];
+}
+
+async function fetchCategorias(): Promise<Categoria[]> {
+  const res = await fetch(`${API_URL}/categorias`);
   if (!res.ok) throw new Error();
   const json = await res.json();
   return json.data?.items || json.data || [];
