@@ -32,7 +32,7 @@ export interface TipoMotor {
   descripcion?: string;
 }
 
-const API_BASE_URL = 'http://localhost:3000';
+export const API_URL = 'http://localhost:3000';
 
 // Mock data of high-quality bikes with the professional images generated earlier
 export const MOCK_MOTOS: Moto[] = [
@@ -88,17 +88,17 @@ export const MOCK_MOTOS: Moto[] = [
 
 export async function fetchMotos(): Promise<Moto[]> {
   try {
-    const response = await fetch(`${API_BASE_URL}/motos`, {
+    const response = await fetch(`${API_URL}/motos`, {
       headers: { 'Content-Type': 'application/json' },
     });
     if (!response.ok) {
       throw new Error(`Error HTTP: ${response.status}`);
     }
     const result = await response.json();
-    
+
     // El backend devuelve SuccessResponseDto con data: Pagination<Moto>
     const motosRaw: Moto[] = result.data?.items || result.data || [];
-    
+
     if (motosRaw.length === 0) {
       console.log('El backend no tiene motos registradas. Usando datos de prueba.');
       return MOCK_MOTOS;
@@ -132,7 +132,7 @@ export async function fetchMotos(): Promise<Moto[]> {
 
 export async function fetchMotoById(id: string): Promise<Moto | null> {
   try {
-    const response = await fetch(`${API_BASE_URL}/motos/${id}`, {
+    const response = await fetch(`${API_URL}/motos/${id}`, {
       headers: { 'Content-Type': 'application/json' },
     });
     if (!response.ok) {
@@ -147,7 +147,7 @@ export async function fetchMotoById(id: string): Promise<Moto | null> {
     let tipo_motor_nombre = undefined;
 
     if (motoRaw.marca_id) {
-      const responseM = await fetch(`${API_BASE_URL}/marcas/${motoRaw.marca_id}`).catch(() => null);
+      const responseM = await fetch(`${API_URL}/marcas/${motoRaw.marca_id}`).catch(() => null);
       if (responseM?.ok) {
         const resM = await responseM.json();
         marca_nombre = resM.data?.nombre || resM.nombre;
@@ -155,7 +155,7 @@ export async function fetchMotoById(id: string): Promise<Moto | null> {
     }
 
     if (motoRaw.estado_id) {
-      const responseE = await fetch(`${API_BASE_URL}/estado-moto/${motoRaw.estado_id}`).catch(() => null);
+      const responseE = await fetch(`${API_URL}/estado-moto/${motoRaw.estado_id}`).catch(() => null);
       if (responseE?.ok) {
         const resE = await responseE.json();
         estado_nombre = resE.data?.nombre || resE.nombre;
@@ -163,7 +163,7 @@ export async function fetchMotoById(id: string): Promise<Moto | null> {
     }
 
     if (motoRaw.tipo_motor_id) {
-      const responseT = await fetch(`${API_BASE_URL}/tipo-motor/${motoRaw.tipo_motor_id}`).catch(() => null);
+      const responseT = await fetch(`${API_URL}/tipo-motor/${motoRaw.tipo_motor_id}`).catch(() => null);
       if (responseT?.ok) {
         const resT = await responseT.json();
         tipo_motor_nombre = resT.data?.nombre || resT.nombre;
@@ -187,22 +187,43 @@ export async function fetchMotoById(id: string): Promise<Moto | null> {
 
 // Master tables endpoints fetches
 async function fetchMarcas(): Promise<Marca[]> {
-  const res = await fetch(`${API_BASE_URL}/marcas`);
+  const res = await fetch(`${API_URL}/marcas`);
   if (!res.ok) throw new Error();
   const json = await res.json();
   return json.data?.items || json.data || [];
 }
 
 async function fetchEstados(): Promise<EstadoMoto[]> {
-  const res = await fetch(`${API_BASE_URL}/estado-moto`);
+  const res = await fetch(`${API_URL}/estado-moto`);
   if (!res.ok) throw new Error();
   const json = await res.json();
   return json.data?.items || json.data || [];
 }
 
 async function fetchMotores(): Promise<TipoMotor[]> {
-  const res = await fetch(`${API_BASE_URL}/tipo-motor`);
+  const res = await fetch(`${API_URL}/tipo-motor`);
   if (!res.ok) throw new Error();
   const json = await res.json();
   return json.data?.items || json.data || [];
+}
+
+export async function apiFetch(path: string, options: RequestInit = {}) {
+  const token = localStorage.getItem('token');
+
+  const response = await fetch(`${API_URL}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options.headers,
+    },
+  });
+
+  const body = await response.json();
+
+  if (!response.ok) {
+    throw new Error(body.message || 'Error en la petición');
+  }
+
+  return body;
 }
