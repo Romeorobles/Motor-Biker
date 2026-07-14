@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Moto } from '../services/api';
+import type { Moto } from '../services/api';
 
 interface MotoCardProps {
   moto: Moto;

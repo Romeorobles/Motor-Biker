@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Moto, fetchMotoById } from '../services/api';
+import { fetchMotoById } from '../services/api';
+import type { Moto } from '../services/api';
 
 function MotoDetail() {
   const { id } = useParams<{ id: string }>();

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Moto, fetchMotos } from '../services/api';
+import { fetchMotos } from '../services/api';
+import type { Moto } from '../services/api';
 import { MotoCard } from '../components/MotoCard';
 
 function Home() {
