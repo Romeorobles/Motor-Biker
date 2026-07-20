@@ -2,8 +2,22 @@ import { NavLink, Route, Routes } from 'react-router-dom';
 import Home from './pages/Home';
 import About from './pages/About';
 import MotoDetail from './pages/MotoDetail';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import AdminRoute from './components/AdminRoute';
+import AdminLayout from './layouts/AdminLayout';
+import Dashboard from './pages/admin/Dashboard';
+import UsersPanel from './pages/admin/UsersPanel';
+import VentasPanel from './pages/admin/VentasPanel';
+import ReservasPanel from './pages/admin/ReservasPanel';
+import MasterDataPanel from './pages/admin/MasterDataPanel';
+import { useAuth } from './context/AuthContext';
+import Profile from './pages/Profile';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
+  const { user, logout } = useAuth();
+
   return (
     <>
       <nav className="main-nav">
@@ -11,18 +25,49 @@ function App() {
           MOTOR-BIKER
         </NavLink>
         <div className="nav-links">
-          <NavLink 
-            to="/" 
+          <NavLink
+            to="/"
             className={({ isActive }) => `nav-link-custom ${isActive ? 'active' : ''}`}
           >
             Catálogo
           </NavLink>
-          <NavLink 
-            to="/about" 
+          <NavLink
+            to="/about"
             className={({ isActive }) => `nav-link-custom ${isActive ? 'active' : ''}`}
           >
             Nosotros
           </NavLink>
+          {user ? (
+            <span className="nav-user">
+              {user.role === 'ADMIN' && (
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) => `nav-link-custom ${isActive ? 'active' : ''}`}
+                >
+                  Panel Admin
+                </NavLink>
+              )}
+              <NavLink
+                to="/perfil"
+                className={({ isActive }) => `nav-link-custom ${isActive ? 'active' : ''}`}
+              >
+                Mi Perfil
+              </NavLink>
+              <span className="nav-link-custom">Hola, {user.username}</span>
+              <button type="button" className="nav-link-custom nav-logout-btn" onClick={logout}>
+                Salir
+              </button>
+            </span>
+          ) : (
+            <>
+              <NavLink to="/login" className="nav-link-custom">
+                Iniciar sesión
+              </NavLink>
+              <NavLink to="/register" className="nav-link-custom">
+                Registrarme
+              </NavLink>
+            </>
+          )}
         </div>
       </nav>
 
@@ -31,6 +76,30 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/motos/:id" element={<MotoDetail />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route
+            path="/perfil"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="usuarios" element={<UsersPanel />} />
+            <Route path="ventas" element={<VentasPanel />} />
+            <Route path="reservas" element={<ReservasPanel />} />
+            <Route path=":entity" element={<MasterDataPanel />} />
+          </Route>
         </Routes>
       </main>
 
