@@ -10,7 +10,7 @@ import Dashboard from './pages/admin/Dashboard';
 import UsersPanel from './pages/admin/UsersPanel';
 import VentasPanel from './pages/admin/VentasPanel';
 import ReservasPanel from './pages/admin/ReservasPanel';
-import MasterDataPanel from './pages/admin/MasterDataPanel';
+import MotosPanel from './pages/admin/MotosPanel';
 import { useAuth } from './context/AuthContext';
 
 function App() {
@@ -79,10 +79,10 @@ function App() {
             }
           >
             <Route index element={<Dashboard />} />
+            <Route path="motos" element={<MotosPanel />} />
             <Route path="usuarios" element={<UsersPanel />} />
             <Route path="ventas" element={<VentasPanel />} />
             <Route path="reservas" element={<ReservasPanel />} />
-            <Route path=":entity" element={<MasterDataPanel />} />
           </Route>
         </Routes>
       </main>
