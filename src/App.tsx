@@ -11,6 +11,7 @@ import UsersPanel from './pages/admin/UsersPanel';
 import VentasPanel from './pages/admin/VentasPanel';
 import ReservasPanel from './pages/admin/ReservasPanel';
 import MotosPanel from './pages/admin/MotosPanel';
+import CategoriasPanel from './pages/admin/CategoriasPanel';
 import { useAuth } from './context/AuthContext';
 
 function App() {
@@ -80,6 +81,7 @@ function App() {
           >
             <Route index element={<Dashboard />} />
             <Route path="motos" element={<MotosPanel />} />
+            <Route path="categorias" element={<CategoriasPanel />} />
             <Route path="usuarios" element={<UsersPanel />} />
             <Route path="ventas" element={<VentasPanel />} />
             <Route path="reservas" element={<ReservasPanel />} />

@@ -4,6 +4,7 @@ import './AdminLayout.css'
 const LINKS = [
   { to: '/admin', label: 'Dashboard', end: true },
   { to: '/admin/motos', label: 'Motos' },
+  { to: '/admin/categorias', label: 'Categorías' },
   { to: '/admin/usuarios', label: 'Usuarios' },
   { to: '/admin/ventas', label: 'Ventas' },
   { to: '/admin/reservas', label: 'Reservas / Pedidos' },
