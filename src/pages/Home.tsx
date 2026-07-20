@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
+
 import honda from '../assets/motos/honda.jpg'
 import yamaha from '../assets/motos/yamaha.jpg'
 import suzuki from '../assets/motos/suzuki.jpg'
@@ -125,9 +127,9 @@ function Home() {
                 <p>Motor: {moto.motor}</p>
                 <p>Precio: ${moto.precio}</p>
 
-                <button className="btn btn-primary">
+                <Link to="/detalle" className="btn btn-primary">
                   Ver detalle
-                </button>
+                </Link>
               </div>
             </div>
           </div>
