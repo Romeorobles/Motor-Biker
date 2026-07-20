@@ -5,6 +5,7 @@ import MotoDetail from './pages/MotoDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminRoute from './components/AdminRoute';
+import Breadcrumbs from './components/Breadcrumbs';
 import AdminLayout from './layouts/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import UsersPanel from './pages/admin/UsersPanel';
@@ -63,6 +64,8 @@ function App() {
           )}
         </div>
       </nav>
+
+      <Breadcrumbs />
 
       <main className="flex-grow-1">
         <Routes>
