@@ -12,6 +12,8 @@ import VentasPanel from './pages/admin/VentasPanel';
 import ReservasPanel from './pages/admin/ReservasPanel';
 import MasterDataPanel from './pages/admin/MasterDataPanel';
 import { useAuth } from './context/AuthContext';
+import Profile from './pages/Profile';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   const { user, logout } = useAuth();
@@ -45,6 +47,12 @@ function App() {
                   Panel Admin
                 </NavLink>
               )}
+              <NavLink
+                to="/perfil"
+                className={({ isActive }) => `nav-link-custom ${isActive ? 'active' : ''}`}
+              >
+                Mi Perfil
+              </NavLink>
               <span className="nav-link-custom">Hola, {user.username}</span>
               <button type="button" className="nav-link-custom nav-logout-btn" onClick={logout}>
                 Salir
@@ -70,6 +78,14 @@ function App() {
           <Route path="/motos/:id" element={<MotoDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route
+            path="/perfil"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/admin"
             element={

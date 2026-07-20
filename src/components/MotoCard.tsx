@@ -29,13 +29,14 @@ export const MotoCard: React.FC<MotoCardProps> = ({ moto }) => {
   return (
     <div className="moto-card animated-fade-in">
       <div className="moto-card-img-wrapper">
+        {/* Aquí se asigna la URL de la imagen. Cambiar esta URL por la imagen real de la motocicleta o usar fallback. */}
         <img 
-          src={moto.imagen_url || '/sport_bike.jpg'} 
+          src={moto.imagen_url || '/https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5nJBaAhmf9x9_INbOUxcMR4BySNZzBH9v-UDyD5sSHw&s=10'} 
           alt={moto.modelo} 
           className="moto-card-img"
           onError={(e) => {
-            // Fallback image if it fails to load
-            (e.target as HTMLImageElement).src = '/sport_bike.jpg';
+            // URL de la imagen de la motocicleta en caso de error. Reemplazar por la URL correspondiente.
+            (e.target as HTMLImageElement).src = '/https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5nJBaAhmf9x9_INbOUxcMR4BySNZzBH9v-UDyD5sSHw&s=10';
           }}
         />
         {moto.estado_nombre && (
