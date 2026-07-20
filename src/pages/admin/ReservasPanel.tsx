@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { deleteItem, fetchPaginated, updateItem } from '../../services/adminService'
+import { deleteItem, fetchAllPages, fetchPaginated, updateItem } from '../../services/adminService'
+import type { AdminUser } from './UsersPanel'
 import './admin.css'
 
 interface Reserva {
@@ -14,6 +15,7 @@ const ESTADOS = ['pendiente', 'confirmada', 'cancelada']
 
 function ReservasPanel() {
   const [reservas, setReservas] = useState<Reserva[]>([])
+  const [usuarios, setUsuarios] = useState<Map<string, AdminUser>>(new Map())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
@@ -23,10 +25,14 @@ function ReservasPanel() {
 
   function load() {
     setLoading(true)
-    fetchPaginated<Reserva>('/reservas', { page, limit: 10 })
-      .then((res) => {
+    Promise.all([
+      fetchPaginated<Reserva>('/reservas', { page, limit: 10 }),
+      fetchAllPages<AdminUser>('/users', 100).catch(() => []),
+    ])
+      .then(([res, users]) => {
         setReservas(res.items)
         setTotalPages(res.meta.totalPages || 1)
+        setUsuarios(new Map(users.map((u) => [u.id, u])))
         setLoading(false)
       })
       .catch((err) => {
@@ -37,6 +43,12 @@ function ReservasPanel() {
   }
 
   useEffect(load, [page])
+
+  function nombreUsuario(usuarioId: string) {
+    const u = usuarios.get(usuarioId)
+    if (!u) return usuarioId
+    return [u.nombre, u.apellido].filter(Boolean).join(' ') || u.username
+  }
 
   async function handleEstadoChange(reserva: Reserva, nuevoEstado: string) {
     setUpdatingId(reserva.id)
@@ -80,6 +92,7 @@ function ReservasPanel() {
             <thead>
               <tr>
                 <th>Moto ID</th>
+                <th>Usuario</th>
                 <th>Usuario ID</th>
                 <th>Fecha</th>
                 <th>Estado</th>
@@ -89,8 +102,9 @@ function ReservasPanel() {
             <tbody>
               {reservas.map((r) => (
                 <tr key={r.id}>
-                  <td title={r.moto_id}>{r.moto_id.slice(0, 8)}...</td>
-                  <td title={r.usuario_id}>{r.usuario_id.slice(0, 8)}...</td>
+                  <td>{r.moto_id}</td>
+                  <td>{nombreUsuario(r.usuario_id)}</td>
+                  <td>{r.usuario_id}</td>
                   <td>{new Date(r.fecha_reserva).toLocaleString('es-EC')}</td>
                   <td>
                     <select

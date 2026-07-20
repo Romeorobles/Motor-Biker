@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { fetchMotoById } from '../services/api';
 import type { Moto } from '../services/api';
@@ -14,7 +14,9 @@ function MotoDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reservando, setReservando] = useState(false);
+  const [reservado, setReservado] = useState(false);
   const [toast, setToast] = useState<ToastData | null>(null);
+  const reservaEnCurso = useRef(false);
 
   useEffect(() => {
     if (!id) return;
@@ -68,17 +70,20 @@ function MotoDetail() {
       navigate('/login');
       return;
     }
-    if (!moto) return;
+    if (!moto || reservaEnCurso.current || reservado) return;
 
+    reservaEnCurso.current = true;
     setReservando(true);
     try {
       await createReserva(user.id, moto.id);
       setToast({ message: '¡Reserva creada con éxito!', type: 'success' });
+      setReservado(true);
     } catch (err) {
       console.error(err);
       setToast({ message: 'No se pudo crear la reserva. Intentá de nuevo.', type: 'error' });
     } finally {
       setReservando(false);
+      reservaEnCurso.current = false;
     }
   }
 
@@ -176,8 +181,8 @@ function MotoDetail() {
                     <Link to="/" className="btn-back-custom">
                       Volver al Catálogo
                     </Link>
-                    <button className="btn-detail flex-grow-1" onClick={handleReservar} disabled={reservando}>
-                      {reservando ? 'Reservando...' : 'Reservar Ahora'}
+                    <button className="btn-detail flex-grow-1" onClick={handleReservar} disabled={reservando || reservado}>
+                      {reservado ? '¡Reservada!' : reservando ? 'Reservando...' : 'Reservar Ahora'}
                     </button>
                   </div>
                 </div>
