@@ -1,13 +1,20 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { fetchMotoById } from '../services/api';
 import type { Moto } from '../services/api';
+import { createReserva } from '../services/reservasService';
+import { useAuth } from '../context/AuthContext';
+import Toast, { type ToastData } from '../components/Toast';
 
 function MotoDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [moto, setMoto] = useState<Moto | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reservando, setReservando] = useState(false);
+  const [toast, setToast] = useState<ToastData | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -56,6 +63,25 @@ function MotoDetail() {
     return 'badge-new';
   };
 
+  async function handleReservar() {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    if (!moto) return;
+
+    setReservando(true);
+    try {
+      await createReserva(user.id, moto.id);
+      setToast({ message: '¡Reserva creada con éxito!', type: 'success' });
+    } catch (err) {
+      console.error(err);
+      setToast({ message: 'No se pudo crear la reserva. Intentá de nuevo.', type: 'error' });
+    } finally {
+      setReservando(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="container py-5 text-center">
@@ -84,6 +110,7 @@ function MotoDetail() {
 
   return (
     <div className="container detail-container animated-fade-in">
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
       <div className="row justify-content-center">
         <div className="col-12 col-lg-10">
           <div className="detail-card">
@@ -151,8 +178,8 @@ function MotoDetail() {
                     <Link to="/" className="btn-back-custom">
                       Volver al Catálogo
                     </Link>
-                    <button className="btn-detail flex-grow-1" onClick={() => alert('¡Reserva iniciada! (Simulación de funcionalidad)')}>
-                      Reservar Ahora
+                    <button className="btn-detail flex-grow-1" onClick={handleReservar} disabled={reservando}>
+                      {reservando ? 'Reservando...' : 'Reservar Ahora'}
                     </button>
                   </div>
                 </div>
