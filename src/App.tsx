@@ -4,6 +4,13 @@ import About from './pages/About';
 import MotoDetail from './pages/MotoDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import AdminRoute from './components/AdminRoute';
+import AdminLayout from './layouts/AdminLayout';
+import Dashboard from './pages/admin/Dashboard';
+import UsersPanel from './pages/admin/UsersPanel';
+import VentasPanel from './pages/admin/VentasPanel';
+import ReservasPanel from './pages/admin/ReservasPanel';
+import MasterDataPanel from './pages/admin/MasterDataPanel';
 import { useAuth } from './context/AuthContext';
 
 function App() {
@@ -30,6 +37,14 @@ function App() {
           </NavLink>
           {user ? (
             <span className="nav-user">
+              {user.role === 'ADMIN' && (
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) => `nav-link-custom ${isActive ? 'active' : ''}`}
+                >
+                  Panel Admin
+                </NavLink>
+              )}
               <span className="nav-link-custom">Hola, {user.username}</span>
               <button type="button" className="nav-link-custom nav-logout-btn" onClick={logout}>
                 Salir
@@ -55,6 +70,20 @@ function App() {
           <Route path="/motos/:id" element={<MotoDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="usuarios" element={<UsersPanel />} />
+            <Route path="ventas" element={<VentasPanel />} />
+            <Route path="reservas" element={<ReservasPanel />} />
+            <Route path=":entity" element={<MasterDataPanel />} />
+          </Route>
         </Routes>
       </main>
 
