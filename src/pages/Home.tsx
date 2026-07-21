@@ -127,7 +127,7 @@ function Home() {
                 <p>Motor: {moto.motor}</p>
                 <p>Precio: ${moto.precio}</p>
 
-                <Link to="/detalle" className="btn btn-primary">
+                <Link to={`/detalle/${moto.id}`} className="btn btn-primary">
                   Ver detalle
                 </Link>
               </div>
