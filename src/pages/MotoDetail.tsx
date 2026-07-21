@@ -181,8 +181,12 @@ function MotoDetail() {
                     <Link to="/" className="btn-back-custom">
                       Volver al Catálogo
                     </Link>
-                    <button className="btn-detail flex-grow-1" onClick={handleReservar} disabled={reservando || reservado}>
-                      {reservado ? '¡Reservada!' : reservando ? 'Reservando...' : 'Reservar Ahora'}
+                    <button
+                      className={`btn-detail flex-grow-1 ${reservado ? 'reservado' : ''}`}
+                      onClick={handleReservar}
+                      disabled={reservando || reservado}
+                    >
+                      {reservado ? 'Reservado' : reservando ? 'Reservando...' : 'Reservar Ahora'}
                     </button>
                   </div>
                 </div>

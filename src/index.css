@@ -394,6 +394,13 @@ body {
   box-shadow: 0 0 15px var(--accent-glow);
 }
 
+.btn-detail.reservado,
+.btn-detail.reservado:hover {
+  background: var(--success);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 /* Detail Screen Page */
 .detail-container {
   padding: 3rem 1.5rem;
