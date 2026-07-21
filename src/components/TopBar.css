@@ -1,0 +1,44 @@
+.top-bar {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.78rem;
+}
+
+.top-bar-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0.4rem 2rem;
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  color: var(--text-secondary);
+}
+
+.top-bar-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a.top-bar-item:hover {
+  color: var(--accent);
+}
+
+.top-bar-icon {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 860px) {
+  .top-bar-hide-sm {
+    display: none;
+  }
+  .top-bar-inner {
+    padding: 0.4rem 1rem;
+    gap: 1rem;
+  }
+}

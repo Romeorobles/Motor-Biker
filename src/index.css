@@ -73,19 +73,20 @@ body {
   background-image:
     radial-gradient(at 0% 0%, var(--blob-1) 0px, transparent 50%),
     radial-gradient(at 50% 0%, var(--blob-2) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, var(--blob-3) 0px, transparent 50%);
-  background-attachment: fixed;
-  background-size: 160% 160%;
+    radial-gradient(at 100% 0%, var(--blob-3) 0px, transparent 50%),
+    repeating-linear-gradient(45deg, var(--border-color) 0px, var(--border-color) 1px, transparent 1px, transparent 42px);
+  background-attachment: fixed, fixed, fixed, fixed;
+  background-size: 160% 160%, 160% 160%, 160% 160%, auto;
   animation: bgDrift 22s ease-in-out infinite;
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 @keyframes bgDrift {
   0%, 100% {
-    background-position: 0% 0%, 50% 0%, 100% 0%;
+    background-position: 0% 0%, 50% 0%, 100% 0%, 0 0;
   }
   50% {
-    background-position: 15% 25%, 55% 15%, 85% 35%;
+    background-position: 15% 25%, 55% 15%, 85% 35%, 0 0;
   }
 }
 
@@ -297,6 +298,9 @@ body {
   position: absolute;
   top: 12px;
   right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   background: var(--overlay-bg);
   backdrop-filter: blur(4px);
   border: 1px solid var(--border-color);
@@ -307,6 +311,12 @@ body {
   border-radius: 99px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+}
+
+.moto-card-badge-icon {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
 }
 
 .badge-new {
@@ -350,11 +360,33 @@ body {
 .moto-card-meta {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
   font-size: 0.85rem;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 0.75rem;
   margin-bottom: 1rem;
+}
+
+.moto-card-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.moto-card-meta-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--accent);
+  flex: 0 0 auto;
+}
+
+.moto-card-price-icon {
+  width: 13px;
+  height: 13px;
+  vertical-align: -2px;
+  margin-right: 2px;
 }
 
 .moto-card-price-row {

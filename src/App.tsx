@@ -8,6 +8,9 @@ import AdminRoute from './components/AdminRoute';
 import ProtectedRoute from './components/ProtectedRoute';
 import Breadcrumbs from './components/Breadcrumbs';
 import ThemeToggle from './components/ThemeToggle';
+import TopBar from './components/TopBar';
+import WhatsAppButton from './components/WhatsAppButton';
+import Footer from './components/Footer';
 import AdminLayout from './layouts/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import UsersPanel from './pages/admin/UsersPanel';
@@ -24,6 +27,8 @@ function App() {
   return (
     <>
       <ThemeToggle />
+      <WhatsAppButton />
+      <TopBar />
       <nav className="main-nav">
         <NavLink to="/" className="nav-brand">
           MOTOR-BIKER
@@ -110,11 +115,7 @@ function App() {
         </Routes>
       </main>
 
-      <footer className="py-4 text-center border-top border-secondary border-opacity-10 mt-auto text-muted small">
-        <div className="container">
-          &copy; {new Date().getFullYear()} Motor-Biker S.A. Todos los derechos reservados.
-        </div>
-      </footer>
+      <Footer />
     </>
   );
 }
