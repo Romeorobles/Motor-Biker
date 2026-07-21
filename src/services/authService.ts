@@ -1,4 +1,4 @@
-import { apiFetch } from './api'
+import { axiosClient } from '../api/axiosClient'
 
 export interface LoginData {
   username: string
@@ -14,17 +14,11 @@ export interface RegisterData {
 }
 
 export async function login(data: LoginData): Promise<string> {
-  const res = await apiFetch('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  })
-  return res.data.access_token
+  const res = await axiosClient.post('/auth/login', data)
+  return res.data.data.access_token
 }
 
 export async function register(data: RegisterData): Promise<string> {
-  const res = await apiFetch('/auth/register', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  })
-  return res.data.access_token
+  const res = await axiosClient.post('/auth/register', data)
+  return res.data.data.access_token
 }
