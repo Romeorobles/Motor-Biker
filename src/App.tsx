@@ -18,6 +18,11 @@ import VentasPanel from './pages/admin/VentasPanel';
 import ReservasPanel from './pages/admin/ReservasPanel';
 import MotosPanel from './pages/admin/MotosPanel';
 import CategoriasPanel from './pages/admin/CategoriasPanel';
+import MarcasPanel from './pages/admin/MarcasPanel';
+import TipoMotorPanel from './pages/admin/TipoMotorPanel';
+import EstadoMotoPanel from './pages/admin/EstadoMotoPanel';
+import ProveedoresPanel from './pages/admin/ProveedoresPanel';
+import ColoresPanel from './pages/admin/ColoresPanel';
 import Profile from './pages/Profile';
 import { useAuth } from './context/AuthContext';
 
@@ -107,7 +112,12 @@ function App() {
           >
             <Route index element={<Dashboard />} />
             <Route path="motos" element={<MotosPanel />} />
+            <Route path="marcas" element={<MarcasPanel />} />
             <Route path="categorias" element={<CategoriasPanel />} />
+            <Route path="tipo-motor" element={<TipoMotorPanel />} />
+            <Route path="estado-moto" element={<EstadoMotoPanel />} />
+            <Route path="proveedores" element={<ProveedoresPanel />} />
+            <Route path="colores" element={<ColoresPanel />} />
             <Route path="usuarios" element={<UsersPanel />} />
             <Route path="ventas" element={<VentasPanel />} />
             <Route path="reservas" element={<ReservasPanel />} />
