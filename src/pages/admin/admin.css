@@ -33,7 +33,7 @@
 .admin-card-value {
   font-size: 2rem;
   font-weight: 800;
-  background: linear-gradient(to right, #60a5fa, #a78bfa);
+  background: var(--gradient-brand);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -72,7 +72,7 @@
 
 .admin-search-input {
   flex: 1 1 240px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--overlay-hover-1);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 0.55rem 0.85rem;
@@ -86,7 +86,7 @@
 }
 
 .admin-btn-primary {
-  background: linear-gradient(135deg, var(--accent) 0%, #1e40af 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -104,7 +104,7 @@
 }
 
 .admin-btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--overlay-hover-1);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
   border-radius: 8px;
@@ -115,7 +115,7 @@
 }
 
 .admin-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--overlay-hover-2);
 }
 
 .admin-btn-danger {
@@ -200,7 +200,7 @@
 }
 
 .admin-badge-neutral {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--overlay-hover-2);
   color: var(--text-secondary);
 }
 
@@ -266,7 +266,7 @@
   padding: 0.6rem 0.75rem;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--overlay-hover-1);
   color: var(--text-primary);
   font-family: var(--font-primary);
   font-size: 0.9rem;

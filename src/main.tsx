@@ -6,6 +6,10 @@ import './index.css'
 import App from './App.tsx'
 import { AuthProvider } from './context/AuthContext.tsx'
 
+if (localStorage.getItem('theme') === 'day') {
+  document.documentElement.setAttribute('data-theme', 'day')
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>

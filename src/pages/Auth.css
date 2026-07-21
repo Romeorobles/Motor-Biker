@@ -35,7 +35,7 @@
   color: var(--text-primary);
   overflow: hidden;
   background:
-    linear-gradient(160deg, rgba(11, 15, 25, 0.92), rgba(11, 15, 25, 0.88)),
+    var(--auth-brand-overlay),
     repeating-linear-gradient(
       115deg,
       var(--accent) 0px,
@@ -105,7 +105,7 @@
   font-size: 0.75rem;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: #60a5fa;
+  color: var(--info);
   font-weight: 700;
   margin-bottom: 1rem;
 }
@@ -117,13 +117,13 @@
   text-transform: uppercase;
   letter-spacing: -1px;
   margin: 0 0 1rem;
-  background: linear-gradient(to right, #60a5fa, #a78bfa, #ec4899);
+  background: var(--gradient-brand);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .auth-brand-title span {
-  background: linear-gradient(to right, #60a5fa, #a78bfa, #ec4899);
+  background: var(--gradient-brand);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -160,7 +160,7 @@
   padding: 3px;
   border-radius: 50%;
   background: var(--accent-glow);
-  color: #60a5fa;
+  color: var(--info);
   box-sizing: content-box;
 }
 
@@ -238,7 +238,7 @@
   padding: 0.7rem 0.85rem 0.7rem 2.5rem;
   border-radius: 10px;
   border: 1px solid var(--border-color);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--overlay-hover-1);
   color: var(--text-primary);
   font-family: var(--font-primary);
   font-size: 0.95rem;
@@ -248,7 +248,7 @@
 .auth-field input:focus {
   outline: none;
   border-color: var(--accent);
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--overlay-hover-2);
   box-shadow: 0 0 0 4px var(--accent-glow);
 }
 
@@ -330,14 +330,14 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: #fff;
-  background: linear-gradient(135deg, var(--accent) 0%, #1e40af 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
 
 .auth-submit:hover:not(:disabled) {
   transform: translateY(-2px);
-  background: linear-gradient(135deg, #3b82f6 0%, var(--accent) 100%);
+  background: linear-gradient(135deg, var(--accent-secondary) 0%, var(--accent) 100%);
   box-shadow: 0 0 15px var(--accent-glow);
 }
 
@@ -358,7 +358,7 @@
 }
 
 .auth-switch a {
-  color: #60a5fa;
+  color: var(--info);
   font-weight: 700;
   text-decoration: none;
 }

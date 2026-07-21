@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import AdminRoute from './components/AdminRoute';
 import ProtectedRoute from './components/ProtectedRoute';
 import Breadcrumbs from './components/Breadcrumbs';
+import ThemeToggle from './components/ThemeToggle';
 import AdminLayout from './layouts/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import UsersPanel from './pages/admin/UsersPanel';
@@ -22,6 +23,7 @@ function App() {
 
   return (
     <>
+      <ThemeToggle />
       <nav className="main-nav">
         <NavLink to="/" className="nav-brand">
           MOTOR-BIKER

@@ -2,18 +2,65 @@
 
 :root {
   --font-primary: 'Outfit', sans-serif;
+
+  /* Modo Noche (default) */
   --bg-primary: #0b0f19;
   --bg-secondary: #161c2d;
   --bg-card: rgba(22, 28, 45, 0.7);
+  --surface-solid: #0f131d;
+  --nav-bg: rgba(11, 15, 25, 0.7);
+  --overlay-bg: rgba(11, 15, 25, 0.85);
   --text-primary: #f3f4f6;
   --text-secondary: #9ca3af;
   --accent: #2563eb;
+  --accent-secondary: #a78bfa;
+  --accent-tertiary: #ec4899;
   --accent-glow: rgba(37, 99, 235, 0.4);
+  --info: #60a5fa;
   --success: #10b981;
   --warning: #f59e0b;
   --border-color: rgba(255, 255, 255, 0.08);
   --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
   --glass-effect: backdrop-filter: blur(16px) saturate(180%);
+  --gradient-brand: linear-gradient(to right, #60a5fa, #a78bfa, #ec4899);
+  --gradient-heading: linear-gradient(to bottom, #ffffff 40%, #9ca3af 100%);
+  --blob-1: rgba(37, 99, 235, 0.18);
+  --blob-2: rgba(139, 92, 246, 0.13);
+  --blob-3: rgba(236, 72, 153, 0.13);
+  --overlay-hover-1: rgba(255, 255, 255, 0.05);
+  --overlay-hover-2: rgba(255, 255, 255, 0.1);
+  --overlay-border-hover: rgba(255, 255, 255, 0.3);
+  --auth-brand-overlay: linear-gradient(160deg, rgba(11, 15, 25, 0.92), rgba(11, 15, 25, 0.88));
+}
+
+:root[data-theme='day'] {
+  /* Modo Día: neón blanco + naranja, con toque de cian y ámbar */
+  --bg-primary: #f7f8fb;
+  --bg-secondary: #ffffff;
+  --bg-card: rgba(255, 255, 255, 0.78);
+  --surface-solid: #eef1f6;
+  --nav-bg: rgba(255, 255, 255, 0.75);
+  --overlay-bg: rgba(255, 255, 255, 0.88);
+  --text-primary: #1c2331;
+  --text-secondary: #64748b;
+  --accent: #f97316;
+  --accent-secondary: #fbbf24;
+  --accent-tertiary: #06b6d4;
+  --accent-glow: rgba(249, 115, 22, 0.35);
+  --info: #0ea5e9;
+  --success: #059669;
+  --warning: #d97706;
+  --border-color: rgba(15, 23, 42, 0.09);
+  --shadow-lg: 0 20px 25px -5px rgba(15, 23, 42, 0.12), 0 10px 10px -5px rgba(15, 23, 42, 0.08);
+  --gradient-brand: linear-gradient(to right, #f97316, #06b6d4, #fbbf24);
+  --gradient-heading: linear-gradient(to right, #f97316, #fb923c 45%, #1c2331 100%);
+  --blob-1: rgba(249, 115, 22, 0.22);
+  --blob-2: rgba(255, 255, 255, 0.95);
+  --blob-3: rgba(6, 182, 212, 0.16);
+  --overlay-hover-1: rgba(15, 23, 42, 0.04);
+  --overlay-hover-2: rgba(15, 23, 42, 0.08);
+  --overlay-border-hover: rgba(15, 23, 42, 0.25);
+  --auth-brand-overlay: linear-gradient(160deg, rgba(255, 247, 237, 0.94), rgba(255, 237, 213, 0.88));
 }
 
 body {
@@ -24,12 +71,13 @@ body {
   font-family: var(--font-primary);
   min-height: 100vh;
   background-image:
-    radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.18) 0px, transparent 50%),
-    radial-gradient(at 50% 0%, rgba(139, 92, 246, 0.13) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.13) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, var(--blob-1) 0px, transparent 50%),
+    radial-gradient(at 50% 0%, var(--blob-2) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, var(--blob-3) 0px, transparent 50%);
   background-attachment: fixed;
   background-size: 160% 160%;
   animation: bgDrift 22s ease-in-out infinite;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 @keyframes bgDrift {
@@ -58,7 +106,7 @@ body {
 
 /* Glassmorphism Navigation */
 .main-nav {
-  background: rgba(11, 15, 25, 0.7);
+  background: var(--nav-bg);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
   padding: 1rem 2rem;
@@ -68,13 +116,14 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: background-color 0.4s ease;
 }
 
 .nav-brand {
   font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: -1px;
-  background: linear-gradient(to right, #60a5fa, #a78bfa, #ec4899);
+  background: var(--gradient-brand);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-decoration: none;
@@ -123,7 +172,7 @@ body {
   font-weight: 800;
   letter-spacing: -1px;
   margin-bottom: 0.5rem;
-  background: linear-gradient(to bottom, #ffffff 40%, #9ca3af 100%);
+  background: var(--gradient-heading);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -149,7 +198,7 @@ body {
 
 .filter-input {
   flex: 1 1 180px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--overlay-hover-1);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 10px 14px;
@@ -166,12 +215,12 @@ body {
 .filter-input:focus {
   outline: none;
   border-color: var(--accent);
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--overlay-hover-2);
 }
 
 .btn-clear-filters {
   flex: 0 0 auto;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--overlay-hover-1);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
   border-radius: 8px;
@@ -183,8 +232,8 @@ body {
 }
 
 .btn-clear-filters:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: var(--overlay-hover-2);
+  border-color: var(--overlay-border-hover);
 }
 
 /* Motorbike Card Styling */
@@ -218,8 +267,8 @@ body {
 
 .moto-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 30px 40px -15px rgba(0, 0, 0, 0.7), 0 0 20px rgba(37, 99, 235, 0.15);
-  border-color: rgba(37, 99, 235, 0.4);
+  box-shadow: 0 30px 40px -15px rgba(0, 0, 0, 0.35), 0 0 20px var(--accent-glow);
+  border-color: var(--accent-glow);
 }
 
 .moto-card-img-wrapper {
@@ -227,7 +276,7 @@ body {
   width: 100%;
   padding-top: 60%; /* Aspect ratio 5:3 */
   overflow: hidden;
-  background: #0f131d;
+  background: var(--surface-solid);
 }
 
 .moto-card-img {
@@ -248,9 +297,9 @@ body {
   position: absolute;
   top: 12px;
   right: 12px;
-  background: rgba(11, 15, 25, 0.85);
+  background: var(--overlay-bg);
   backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
   color: var(--text-primary);
   padding: 4px 10px;
   font-size: 0.75rem;
@@ -271,8 +320,8 @@ body {
 }
 
 .badge-semi {
-  border-color: #60a5fa;
-  color: #60a5fa;
+  border-color: var(--info);
+  color: var(--info);
 }
 
 .moto-card-body {
@@ -323,12 +372,12 @@ body {
 .moto-card-price-val {
   font-size: 1.4rem;
   font-weight: 800;
-  color: #10b981;
+  color: var(--success);
 }
 
 .btn-detail {
   width: 100%;
-  background: linear-gradient(135deg, var(--accent) 0%, #1e40af 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
   border: none;
   border-radius: 8px;
   color: white;
@@ -341,7 +390,7 @@ body {
 }
 
 .btn-detail:hover {
-  background: linear-gradient(135deg, #3b82f6 0%, var(--accent) 100%);
+  background: linear-gradient(135deg, var(--accent-secondary) 0%, var(--accent) 100%);
   box-shadow: 0 0 15px var(--accent-glow);
 }
 
@@ -360,7 +409,7 @@ body {
 }
 
 .detail-img-wrapper {
-  background: #0f131d;
+  background: var(--surface-solid);
   height: 100%;
   min-height: 400px;
   display: flex;
@@ -379,7 +428,7 @@ body {
   position: absolute;
   top: 20px;
   left: 20px;
-  background: rgba(11, 15, 25, 0.8);
+  background: var(--overlay-bg);
   border: 1px solid var(--border-color);
   padding: 6px 14px;
   border-radius: 99px;
@@ -409,7 +458,7 @@ body {
   font-weight: 800;
   margin-bottom: 1.5rem;
   line-height: 1.1;
-  background: linear-gradient(to right, #ffffff, #d1d5db);
+  background: var(--gradient-heading);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -427,7 +476,7 @@ body {
 .detail-price-val {
   font-size: 2.25rem;
   font-weight: 900;
-  color: #10b981;
+  color: var(--success);
 }
 
 .specs-grid {
@@ -457,7 +506,7 @@ body {
 }
 
 .btn-back-custom {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--overlay-hover-1);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
   border-radius: 8px;
@@ -469,9 +518,9 @@ body {
 }
 
 .btn-back-custom:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border-color: rgba(255, 255, 255, 0.3);
+  background: var(--overlay-hover-2);
+  color: var(--accent);
+  border-color: var(--overlay-border-hover);
 }
 
 /* Animations */
