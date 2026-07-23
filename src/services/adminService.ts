@@ -43,3 +43,10 @@ export async function updateItem<T>(path: string, id: string, body: unknown, met
 export async function deleteItem(path: string, id: string): Promise<void> {
   await axiosClient.delete(`${path}/${id}`)
 }
+
+export function extractErrorMessage(err: unknown, fallback: string): string {
+  const message = (err as { response?: { data?: { message?: string | string[] } } })?.response?.data?.message
+  if (Array.isArray(message)) return message.join(', ')
+  if (typeof message === 'string') return message
+  return fallback
+}

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { createItem, deleteItem, fetchPaginated, updateItem } from '../../services/adminService'
+import { createItem, deleteItem, extractErrorMessage, fetchPaginated, updateItem } from '../../services/adminService'
 import './admin.css'
 
 interface Color {
@@ -96,7 +96,7 @@ function ColoresPanel() {
       load()
     } catch (err) {
       console.error(err)
-      setSubmitError('No se pudo guardar. Revisá los datos e intentá de nuevo.')
+      setSubmitError(extractErrorMessage(err, 'No se pudo guardar. Revisá los datos e intentá de nuevo.'))
     }
   }
 
@@ -109,7 +109,7 @@ function ColoresPanel() {
     } catch (err) {
       console.error(err)
       setDeleting(null)
-      setError('No se pudo eliminar el color.')
+      setError(extractErrorMessage(err, 'No se pudo eliminar el color.'))
     }
   }
 
