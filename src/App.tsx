@@ -24,6 +24,7 @@ import EstadoMotoPanel from './pages/admin/EstadoMotoPanel';
 import ProveedoresPanel from './pages/admin/ProveedoresPanel';
 import ColoresPanel from './pages/admin/ColoresPanel';
 import Profile from './pages/Profile';
+import Carrito from './pages/Carrito';
 import { useAuth } from './context/AuthContext';
 
 function App() {
@@ -67,6 +68,12 @@ function App() {
               >
                 Mi Perfil
               </NavLink>
+              <NavLink
+                to="/carrito"
+                className={({ isActive }) => `nav-link-custom ${isActive ? 'active' : ''}`}
+              >
+                Carrito
+              </NavLink>
               <span className="nav-link-custom">Hola, {user.username}</span>
               <button type="button" className="nav-link-custom nav-logout-btn" onClick={logout}>
                 Salir
@@ -99,6 +106,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/carrito"
+            element={
+              <ProtectedRoute>
+                <Carrito />
               </ProtectedRoute>
             }
           />

@@ -298,3 +298,8 @@
   text-align: center;
   color: var(--text-secondary);
 }
+
+.admin-modal-ventas {
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}

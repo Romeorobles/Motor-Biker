@@ -234,7 +234,7 @@ function VentasPanel() {
 
       {modalOpen && (
         <div className="admin-modal-backdrop" onClick={() => setModalOpen(false)}>
-          <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="admin-modal admin-modal-ventas" onClick={(e) => e.stopPropagation()}>
             <h3>Nueva Venta</h3>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="admin-form-field">
