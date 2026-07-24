@@ -3,15 +3,16 @@ import './AdminLayout.css'
 
 const LINKS = [
   { to: '/admin', label: 'Dashboard', end: true },
-  { to: '/admin/usuarios', label: 'Usuarios' },
-  { to: '/admin/ventas', label: 'Ventas' },
-  { to: '/admin/reservas', label: 'Reservas / Pedidos' },
+  { to: '/admin/motos', label: 'Motos' },
   { to: '/admin/marcas', label: 'Marcas' },
   { to: '/admin/categorias', label: 'Categorías' },
   { to: '/admin/tipo-motor', label: 'Tipo de Motor' },
   { to: '/admin/estado-moto', label: 'Estado de Moto' },
-  { to: '/admin/colores', label: 'Colores' },
   { to: '/admin/proveedores', label: 'Proveedores' },
+  { to: '/admin/colores', label: 'Colores' },
+  { to: '/admin/usuarios', label: 'Usuarios' },
+  { to: '/admin/ventas', label: 'Ventas' },
+  { to: '/admin/reservas', label: 'Reservas / Pedidos' },
 ]
 
 function AdminLayout() {

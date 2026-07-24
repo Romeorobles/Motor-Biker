@@ -2,19 +2,33 @@ import { useEffect, useState } from 'react';
 import { fetchMotosPaginated } from '../services/api';
 import type { Moto } from '../services/api';
 import { MotoCard } from '../components/MotoCard';
+import HeroCarousel from '../components/HeroCarousel';
+import FinancingCalculator from '../components/FinancingCalculator';
+import { fetchAllPages } from '../services/adminService';
+import { MotorcycleIcon, TagIcon, LayersIcon, BoxIcon } from '../components/icons';
+import './Home.css';
+
+interface Option {
+  id: string;
+  nombre: string;
+}
+
+interface Stats {
+  motos: number;
+  marcas: number;
+  categorias: number;
+  stock: number;
+}
 
 function Home() {
   const [motos, setMotos] = useState<Moto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // States for backend pagination, search, sorting and limit
-  const [search, setSearch] = useState('');
-  const [sort, setSort] = useState('modelo');
-  const [order, setOrder] = useState<'ASC' | 'DESC'>('ASC');
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(8);
-  const [totalPages, setTotalPages] = useState(1);
+  const [buscar, setBuscar] = useState('');
+  const [marca, setMarca] = useState('');
+  const [categoria, setCategoria] = useState('');
+  const [motor, setMotor] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -49,79 +63,105 @@ function Home() {
   }, [page, limit, search, sort, order]);
 
   function limpiarFiltros() {
-    setSearch('');
-    setSort('modelo');
-    setOrder('ASC');
-    setPage(1);
-    setLimit(8);
+    setBuscar('');
+    setMarca('');
+    setCategoria('');
+    setMotor('');
   }
 
   return (
-    <div className="container py-4">
-      <header className="catalog-header animated-fade-in">
-        <h1 className="catalog-title">Motor-Biker Catálogo</h1>
-        <p className="catalog-subtitle">
-          Explora nuestra selección exclusiva de motocicletas de alto rendimiento y estilo inigualable.
-        </p>
-      </header>
+    <>
+      {/* Hero */}
+      <section className="hero-banner">
+        <div className="hero-overlay" />
+        <div className="hero-content container">
+          <h1 className="hero-title">La moto de tus sueños te está esperando</h1>
+          <p className="hero-subtitle">
+            {stats.motos > 0
+              ? `${stats.motos} modelos disponibles en nuestro catálogo, nuevos y usados`
+              : 'Explorá nuestro catálogo de motocicletas nuevas y usadas'}
+          </p>
+          <div className="hero-cta">
+            <a href="#catalogo" className="hero-btn-primary">
+              Ver Catálogo
+            </a>
+            <a
+              href="https://wa.me/593985345265"
+              target="_blank"
+              rel="noreferrer"
+              className="hero-btn-secondary"
+            >
+              Cotizar Ahora
+            </a>
+          </div>
+        </div>
+      </section>
 
-      {/* Advanced Catalog Filters */}
+      <HeroCarousel motos={todasLasMotos} />
+
+      {/* Estadísticas reales */}
+      <section className="stats-bar">
+        <div className="container stats-grid">
+          <div className="stat-item">
+            <MotorcycleIcon className="stat-icon" />
+            <span className="stat-value">{stats.motos}</span>
+            <span className="stat-label">Motos disponibles</span>
+          </div>
+          <div className="stat-item">
+            <TagIcon className="stat-icon" />
+            <span className="stat-value">{stats.marcas}</span>
+            <span className="stat-label">Marcas</span>
+          </div>
+          <div className="stat-item">
+            <LayersIcon className="stat-icon" />
+            <span className="stat-value">{stats.categorias}</span>
+            <span className="stat-label">Categorías</span>
+          </div>
+          <div className="stat-item">
+            <BoxIcon className="stat-icon" />
+            <span className="stat-value">{stats.stock}</span>
+            <span className="stat-label">Unidades en stock</span>
+          </div>
+        </div>
+      </section>
+
+      <div className="container py-4" id="catalogo">
+        <header className="catalog-header animated-fade-in">
+          <h1 className="catalog-title">Motor-Biker Catálogo</h1>
+          <p className="catalog-subtitle">
+            Explora nuestra selección exclusiva de motocicletas de alto rendimiento y estilo inigualable.
+          </p>
+        </header>
+
       <div className="filter-bar animated-fade-in">
-        {/* Search by Model */}
         <input
           type="text"
           className="filter-input"
           placeholder="Buscar por modelo"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1); // Reset page on search change
-          }}
+          value={buscar}
+          onChange={(e) => setBuscar(e.target.value)}
         />
-
-        {/* Sort Field */}
-        <select
+        <input
+          type="text"
           className="filter-input"
-          value={sort}
-          onChange={(e) => {
-            setSort(e.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="modelo">Ordenar por Modelo</option>
-          <option value="precio">Ordenar por Precio</option>
-          <option value="anio">Ordenar por Año</option>
-          <option value="stock">Ordenar por Stock</option>
-        </select>
-
-        {/* Sort Order */}
-        <select
+          placeholder="Buscar por marca"
+          value={marca}
+          onChange={(e) => setMarca(e.target.value)}
+        />
+        <input
+          type="text"
           className="filter-input"
-          value={order}
-          onChange={(e) => {
-            setOrder(e.target.value as 'ASC' | 'DESC');
-            setPage(1);
-          }}
-        >
-          <option value="ASC">Orden Ascendente</option>
-          <option value="DESC">Orden Descendente</option>
-        </select>
-
-        {/* Limit Selector */}
-        <select
+          placeholder="Buscar por categoría"
+          value={categoria}
+          onChange={(e) => setCategoria(e.target.value)}
+        />
+        <input
+          type="text"
           className="filter-input"
-          value={limit}
-          onChange={(e) => {
-            setLimit(Number(e.target.value));
-            setPage(1);
-          }}
-        >
-          <option value={4}>4 por página</option>
-          <option value={8}>8 por página</option>
-          <option value={12}>12 por página</option>
-          <option value={16}>16 por página</option>
-        </select>
-
+          placeholder="Buscar por motor"
+          value={motor}
+          onChange={(e) => setMotor(e.target.value)}
+        />
         <button type="button" className="btn-clear-filters" onClick={limpiarFiltros}>
           Limpiar filtros
         </button>
@@ -138,43 +178,18 @@ function Home() {
         <div className="alert alert-danger text-center glass-card my-4" role="alert">
           {error}
         </div>
-      ) : motos.length === 0 ? (
+      ) : motosFiltradas.length === 0 ? (
         <div className="text-center py-5 text-muted">
           Ninguna moto coincide con los filtros aplicados.
         </div>
       ) : (
-        <>
-          <div className="row g-4 justify-content-center">
-            {motos.map((moto) => (
-              <div key={moto.id} className="col-12 col-md-6 col-lg-4 col-xl-3">
-                <MotoCard moto={moto} />
-              </div>
-            ))}
-          </div>
-
-          {/* Frontend Pagination controls styled similarly to admin panels */}
-          {totalPages > 1 && (
-            <div className="d-flex justify-content-center align-items-center gap-3 mt-5">
-              <button
-                className="btn btn-outline-light px-4"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              >
-                Anterior
-              </button>
-              <span className="text-muted">
-                Página <strong>{page}</strong> de {totalPages}
-              </span>
-              <button
-                className="btn btn-outline-light px-4"
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              >
-                Siguiente
-              </button>
+        <div className="row g-4 justify-content-center">
+          {motosFiltradas.map((moto) => (
+            <div key={moto.id} className="col-12 col-md-6 col-lg-4 col-xl-3">
+              <MotoCard moto={moto} />
             </div>
-          )}
-        </>
+          ))}
+        </div>
       )}
     </div>
   );

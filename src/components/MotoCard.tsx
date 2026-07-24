@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import type { Moto } from '../services/api';
+import { AwardIcon, BoltIcon, BoxIcon, CalendarIcon, DollarIcon, GaugeIcon, ShieldIcon } from './icons';
 
 interface MotoCardProps {
   moto: Moto;
 }
 
 export const MotoCard: React.FC<MotoCardProps> = ({ moto }) => {
-  // Format price helper
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
@@ -16,7 +16,6 @@ export const MotoCard: React.FC<MotoCardProps> = ({ moto }) => {
     }).format(price);
   };
 
-  // Determine badge styling class based on state name
   const getBadgeClass = (status?: string) => {
     if (!status) return 'badge-new';
     const lower = status.toLowerCase();
@@ -26,21 +25,28 @@ export const MotoCard: React.FC<MotoCardProps> = ({ moto }) => {
     return 'badge-new';
   };
 
+  const getBadgeIcon = (status?: string) => {
+    if (!status) return <BoltIcon className="moto-card-badge-icon" />;
+    const lower = status.toLowerCase();
+    if (lower.includes('semi')) return <AwardIcon className="moto-card-badge-icon" />;
+    if (lower.includes('usad')) return <ShieldIcon className="moto-card-badge-icon" />;
+    return <BoltIcon className="moto-card-badge-icon" />;
+  };
+
   return (
     <div className="moto-card animated-fade-in">
       <div className="moto-card-img-wrapper">
-        {/* Aquí se asigna la URL de la imagen. Cambiar esta URL por la imagen real de la motocicleta o usar fallback. */}
-        <img 
-          src={moto.imagen_url || '/https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5nJBaAhmf9x9_INbOUxcMR4BySNZzBH9v-UDyD5sSHw&s=10'} 
-          alt={moto.modelo} 
+        <img
+          src={moto.imagen_url || '/sport_bike.jpg'}
+          alt={moto.modelo}
           className="moto-card-img"
           onError={(e) => {
-            // URL de la imagen de la motocicleta en caso de error. Reemplazar por la URL correspondiente.
-            (e.target as HTMLImageElement).src = '/https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5nJBaAhmf9x9_INbOUxcMR4BySNZzBH9v-UDyD5sSHw&s=10';
+            (e.target as HTMLImageElement).src = '/sport_bike.jpg';
           }}
         />
         {moto.estado_nombre && (
           <span className={`moto-card-badge ${getBadgeClass(moto.estado_nombre)}`}>
+            {getBadgeIcon(moto.estado_nombre)}
             {moto.estado_nombre}
           </span>
         )}
@@ -53,14 +59,26 @@ export const MotoCard: React.FC<MotoCardProps> = ({ moto }) => {
         <h3 className="moto-card-title">{moto.modelo}</h3>
 
         <div className="moto-card-meta">
-          {moto.anio && <span>Año: {moto.anio}</span>}
-          {moto.cilindraje && <span>{moto.cilindraje} cc</span>}
-          <span>Stock: {moto.stock}</span>
+          {moto.anio && (
+            <span>
+              <CalendarIcon className="moto-card-meta-icon" /> {moto.anio}
+            </span>
+          )}
+          {moto.cilindraje && (
+            <span>
+              <GaugeIcon className="moto-card-meta-icon" /> {moto.cilindraje} cc
+            </span>
+          )}
+          <span>
+            <BoxIcon className="moto-card-meta-icon" /> Stock: {moto.stock}
+          </span>
         </div>
 
         <div className="moto-card-price-row mb-3">
           <div>
-            <span className="moto-card-price-label d-block text-start">Precio</span>
+            <span className="moto-card-price-label d-block text-start">
+              <DollarIcon className="moto-card-price-icon" /> Precio
+            </span>
             <span className="moto-card-price-val">{formatPrice(moto.precio)}</span>
           </div>
         </div>

@@ -1,21 +1,25 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { createItem, deleteItem, fetchPaginated, updateItem } from '../../services/adminService'
-import { masterDataConfigs } from './masterDataConfigs'
 import './admin.css'
 
-interface Row {
+interface Marca {
   id: string
-  [key: string]: unknown
+  nombre: string
+  pais: string
 }
 
-function MasterDataPanel() {
-  const { entity } = useParams<{ entity: string }>()
-  const config = entity ? masterDataConfigs[entity] : undefined
+const marcaSchema = z.object({
+  nombre: z.string().min(1, 'El nombre es obligatorio'),
+  pais: z.string().min(1, 'El país es obligatorio'),
+})
 
-  const [rows, setRows] = useState<Row[]>([])
+type MarcaFormData = z.infer<typeof marcaSchema>
+
+function MarcasPanel() {
+  const [marcas, setMarcas] = useState<Marca[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
@@ -23,8 +27,8 @@ function MasterDataPanel() {
   const [totalPages, setTotalPages] = useState(1)
 
   const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing] = useState<Row | null>(null)
-  const [deleting, setDeleting] = useState<Row | null>(null)
+  const [editing, setEditing] = useState<Marca | null>(null)
+  const [deleting, setDeleting] = useState<Marca | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   const {
@@ -32,77 +36,57 @@ function MasterDataPanel() {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<Record<string, unknown>>({
+  } = useForm<MarcaFormData>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: config ? zodResolver(config.schema as any) : undefined,
+    resolver: zodResolver(marcaSchema) as any,
   })
 
-  useEffect(() => {
-    setPage(1)
-    setSearch('')
-  }, [entity])
-
-  useEffect(() => {
-    if (!config) return
-    let active = true
+  function load() {
     setLoading(true)
-
-    fetchPaginated<Row>(config.path, {
+    fetchPaginated<Marca>('/marcas', {
       page,
       limit: 10,
       search: search || undefined,
-      searchField: search ? config.searchField : undefined,
+      searchField: search ? 'nombre' : undefined,
     })
       .then((res) => {
-        if (!active) return
-        setRows(res.items)
+        setMarcas(res.items)
         setTotalPages(res.meta.totalPages || 1)
         setLoading(false)
       })
       .catch((err) => {
-        if (!active) return
         console.error(err)
-        setError('No se pudo cargar la información.')
+        setError('No se pudieron cargar las marcas.')
         setLoading(false)
       })
-
-    return () => {
-      active = false
-    }
-  }, [config, page, search])
-
-  if (!config) {
-    return <div className="admin-empty">Sección no encontrada.</div>
   }
+
+  useEffect(load, [page, search])
 
   function openCreate() {
     setEditing(null)
     setSubmitError(null)
-    reset({})
+    reset({ nombre: '', pais: '' })
     setModalOpen(true)
   }
 
-  function openEdit(row: Row) {
-    setEditing(row)
+  function openEdit(m: Marca) {
+    setEditing(m)
     setSubmitError(null)
-    reset(row)
+    reset({ nombre: m.nombre, pais: m.pais })
     setModalOpen(true)
   }
 
-  async function onSubmit(data: Record<string, unknown>) {
-    const cfg = config!
+  async function onSubmit(data: MarcaFormData) {
     setSubmitError(null)
     try {
       if (editing) {
-        await updateItem(cfg.path, editing.id, data, cfg.updateMethod)
+        await updateItem('/marcas', editing.id, data, 'PUT')
       } else {
-        await createItem(cfg.path, data)
+        await createItem('/marcas', data)
       }
       setModalOpen(false)
-      setPage(1)
-      const res = await fetchPaginated<Row>(cfg.path, { page: 1, limit: 10 })
-      setRows(res.items)
-      setTotalPages(res.meta.totalPages || 1)
+      load()
     } catch (err) {
       console.error(err)
       setSubmitError('No se pudo guardar. Revisá los datos e intentá de nuevo.')
@@ -110,29 +94,26 @@ function MasterDataPanel() {
   }
 
   async function confirmDelete() {
-    const cfg = config!
     if (!deleting) return
     try {
-      await deleteItem(cfg.path, deleting.id)
+      await deleteItem('/marcas', deleting.id)
       setDeleting(null)
-      const res = await fetchPaginated<Row>(cfg.path, { page, limit: 10 })
-      setRows(res.items)
-      setTotalPages(res.meta.totalPages || 1)
+      load()
     } catch (err) {
       console.error(err)
       setDeleting(null)
-      setError('No se pudo eliminar el registro.')
+      setError('No se pudo eliminar la marca.')
     }
   }
 
   return (
     <div className="animated-fade-in">
-      <h1 className="admin-page-title">{config.title}</h1>
+      <h1 className="admin-page-title">Marcas</h1>
 
       <div className="admin-toolbar">
         <input
           className="admin-search-input"
-          placeholder={`Buscar por ${config.searchField}...`}
+          placeholder="Buscar por nombre..."
           value={search}
           onChange={(e) => {
             setPage(1)
@@ -140,39 +121,37 @@ function MasterDataPanel() {
           }}
         />
         <button className="admin-btn-primary" onClick={openCreate}>
-          + Nuevo
+          + Nueva Marca
         </button>
       </div>
 
       <div className="admin-table-wrap">
         {loading ? (
-          <div className="admin-loading">Cargando...</div>
+          <div className="admin-loading">Cargando marcas...</div>
         ) : error ? (
           <div className="admin-empty">{error}</div>
-        ) : rows.length === 0 ? (
-          <div className="admin-empty">No hay registros.</div>
+        ) : marcas.length === 0 ? (
+          <div className="admin-empty">No hay marcas registradas.</div>
         ) : (
           <table className="admin-table">
             <thead>
               <tr>
-                {config.columns.map((c) => (
-                  <th key={c.key}>{c.label}</th>
-                ))}
+                <th>Nombre</th>
+                <th>País</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
-                <tr key={row.id}>
-                  {config.columns.map((c) => (
-                    <td key={c.key}>{String(row[c.key] ?? '—')}</td>
-                  ))}
+              {marcas.map((m) => (
+                <tr key={m.id}>
+                  <td>{m.nombre}</td>
+                  <td>{m.pais}</td>
                   <td>
                     <div className="admin-table-actions">
-                      <button className="admin-btn-secondary" onClick={() => openEdit(row)}>
+                      <button className="admin-btn-secondary" onClick={() => openEdit(m)}>
                         Editar
                       </button>
-                      <button className="admin-btn-danger" onClick={() => setDeleting(row)}>
+                      <button className="admin-btn-danger" onClick={() => setDeleting(m)}>
                         Eliminar
                       </button>
                     </div>
@@ -185,11 +164,7 @@ function MasterDataPanel() {
 
         {!loading && !error && totalPages > 1 && (
           <div className="admin-pagination">
-            <button
-              className="admin-btn-secondary"
-              disabled={page <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-            >
+            <button className="admin-btn-secondary" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
               Anterior
             </button>
             <span>
@@ -209,17 +184,20 @@ function MasterDataPanel() {
       {modalOpen && (
         <div className="admin-modal-backdrop" onClick={() => setModalOpen(false)}>
           <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>{editing ? `Editar ${config.title}` : `Nuevo en ${config.title}`}</h3>
+            <h3>{editing ? 'Editar Marca' : 'Nueva Marca'}</h3>
             <form onSubmit={handleSubmit(onSubmit)}>
-              {config.fields.map((f) => (
-                <div className="admin-form-field" key={f.name}>
-                  <label htmlFor={f.name}>{f.label}</label>
-                  <input id={f.name} type={f.type || 'text'} {...register(f.name)} />
-                  {errors[f.name] && (
-                    <span className="admin-form-error">{String(errors[f.name]?.message || 'Campo inválido')}</span>
-                  )}
-                </div>
-              ))}
+              <div className="admin-form-field">
+                <label htmlFor="nombre">Nombre</label>
+                <input id="nombre" {...register('nombre')} />
+                {errors.nombre && <span className="admin-form-error">{errors.nombre.message}</span>}
+              </div>
+
+              <div className="admin-form-field">
+                <label htmlFor="pais">País</label>
+                <input id="pais" {...register('pais')} />
+                {errors.pais && <span className="admin-form-error">{errors.pais.message}</span>}
+              </div>
+
               {submitError && <span className="admin-form-error">{submitError}</span>}
               <div className="admin-modal-actions">
                 <button type="button" className="admin-btn-secondary" onClick={() => setModalOpen(false)}>
@@ -237,7 +215,7 @@ function MasterDataPanel() {
       {deleting && (
         <div className="admin-modal-backdrop" onClick={() => setDeleting(null)}>
           <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>¿Eliminar este registro?</h3>
+            <h3>¿Eliminar esta marca?</h3>
             <p style={{ color: 'var(--text-secondary)' }}>Esta acción no se puede deshacer.</p>
             <div className="admin-modal-actions">
               <button className="admin-btn-secondary" onClick={() => setDeleting(null)}>
@@ -254,4 +232,4 @@ function MasterDataPanel() {
   )
 }
 
-export default MasterDataPanel
+export default MarcasPanel

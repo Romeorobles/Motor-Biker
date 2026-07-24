@@ -1,0 +1,256 @@
+/* ===== Hero Banner ===== */
+.hero-banner {
+  position: relative;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url('/sport_bike.jpg');
+  background-size: cover;
+  background-position: center 30%;
+  overflow: hidden;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(5, 8, 15, 0.75) 0%, rgba(5, 8, 15, 0.88) 60%, var(--bg-primary) 100%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 3rem 1rem;
+  max-width: 720px;
+}
+
+.hero-title {
+  color: #ffffff;
+  font-size: 2.75rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+.hero-subtitle {
+  color: #e5e7eb;
+  font-size: 1.15rem;
+  margin-bottom: 2rem;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.hero-cta {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-btn-primary,
+.hero-btn-secondary {
+  padding: 0.9rem 2rem;
+  border-radius: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-btn-primary {
+  background: linear-gradient(135deg, #f97316, #fb923c);
+  color: #fff;
+  box-shadow: 0 8px 24px -6px rgba(249, 115, 22, 0.6);
+}
+
+.hero-btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -6px rgba(249, 115, 22, 0.75);
+  color: #fff;
+}
+
+.hero-btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(6px);
+}
+
+.hero-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-3px);
+  color: #fff;
+}
+
+/* ===== Stats Bar ===== */
+.stats-bar {
+  padding: 2.5rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.stat-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--accent);
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.9rem;
+  font-weight: 800;
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.75rem;
+  }
+}
+
+/* ===== Catalog layout with sidebar ===== */
+.catalog-layout {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.catalog-sidebar {
+  flex: 0 0 220px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 1.25rem;
+  position: sticky;
+  top: 90px;
+}
+
+.sidebar-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 0 0 1rem;
+  color: var(--text-primary);
+}
+
+.sidebar-group {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-group:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.sidebar-group h4 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin: 0 0 0.6rem;
+}
+
+.sidebar-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+}
+
+.sidebar-checkbox input {
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.sidebar-empty {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.catalog-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .catalog-layout {
+    flex-direction: column;
+  }
+  .catalog-sidebar {
+    flex: 0 0 auto;
+    width: 100%;
+    position: static;
+  }
+}
+
+/* ===== Brands section ===== */
+.brands-section {
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.brands-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.brands-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.brand-pill {
+  padding: 0.6rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--overlay-hover-1);
+  color: var(--text-secondary);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.brand-pill:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}

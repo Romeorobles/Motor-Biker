@@ -5,30 +5,29 @@ import { z } from 'zod'
 import { createItem, deleteItem, fetchPaginated, updateItem } from '../../services/adminService'
 import './admin.css'
 
-export interface AdminUser {
+interface Proveedor {
   id: string
-  username: string
-  email: string
-  role: string
-  isActive: boolean
-  nombre?: string
-  apellido?: string
+  nombre: string
+  pais: string
+  contacto: string
+  telefono?: string
+  email?: string
+  activo?: boolean
 }
 
-const userSchema = z.object({
-  username: z.string().min(1, 'El usuario es obligatorio'),
-  email: z.string().email('Email inválido'),
-  password: z.preprocess((v) => (v === '' ? undefined : v), z.string().min(6, 'Mínimo 6 caracteres').optional()),
-  nombre: z.string().optional(),
-  apellido: z.string().optional(),
-  role: z.enum(['ADMIN', 'USER']).optional(),
-  isActive: z.boolean().optional(),
+const proveedorSchema = z.object({
+  nombre: z.string().min(1, 'El nombre es obligatorio'),
+  pais: z.string().min(1, 'El país es obligatorio'),
+  contacto: z.string().min(1, 'El contacto es obligatorio'),
+  telefono: z.string().optional(),
+  email: z.string().email('Email inválido').optional().or(z.literal('')),
+  activo: z.boolean().optional(),
 })
 
-type UserFormData = z.infer<typeof userSchema>
+type ProveedorFormData = z.infer<typeof proveedorSchema>
 
-function UsersPanel() {
-  const [users, setUsers] = useState<AdminUser[]>([])
+function ProveedoresPanel() {
+  const [proveedores, setProveedores] = useState<Proveedor[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
@@ -36,8 +35,8 @@ function UsersPanel() {
   const [totalPages, setTotalPages] = useState(1)
 
   const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing] = useState<AdminUser | null>(null)
-  const [deleting, setDeleting] = useState<AdminUser | null>(null)
+  const [editing, setEditing] = useState<Proveedor | null>(null)
+  const [deleting, setDeleting] = useState<Proveedor | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   const {
@@ -45,27 +44,28 @@ function UsersPanel() {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<UserFormData>({
+  } = useForm<ProveedorFormData>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(userSchema) as any,
+    resolver: zodResolver(proveedorSchema) as any,
+    defaultValues: { activo: true },
   })
 
   function load() {
     setLoading(true)
-    fetchPaginated<AdminUser>('/users', {
+    fetchPaginated<Proveedor>('/proveedores', {
       page,
       limit: 10,
       search: search || undefined,
-      searchField: search ? 'username' : undefined,
+      searchField: search ? 'nombre' : undefined,
     })
       .then((res) => {
-        setUsers(res.items)
+        setProveedores(res.items)
         setTotalPages(res.meta.totalPages || 1)
         setLoading(false)
       })
       .catch((err) => {
         console.error(err)
-        setError('No se pudieron cargar los usuarios.')
+        setError('No se pudieron cargar los proveedores.')
         setLoading(false)
       })
   }
@@ -75,70 +75,62 @@ function UsersPanel() {
   function openCreate() {
     setEditing(null)
     setSubmitError(null)
-    reset({ username: '', email: '', password: '', nombre: '', apellido: '', role: 'USER', isActive: true })
+    reset({ nombre: '', pais: '', contacto: '', telefono: '', email: '', activo: true })
     setModalOpen(true)
   }
 
-  function openEdit(u: AdminUser) {
-    setEditing(u)
+  function openEdit(p: Proveedor) {
+    setEditing(p)
     setSubmitError(null)
     reset({
-      username: u.username,
-      email: u.email,
-      password: '',
-      nombre: u.nombre || '',
-      apellido: u.apellido || '',
-      role: u.role as 'ADMIN' | 'USER',
-      isActive: u.isActive,
+      nombre: p.nombre,
+      pais: p.pais,
+      contacto: p.contacto,
+      telefono: p.telefono || '',
+      email: p.email || '',
+      activo: p.activo ?? true,
     })
     setModalOpen(true)
   }
 
-  async function onSubmit(data: UserFormData) {
+  async function onSubmit(data: ProveedorFormData) {
     setSubmitError(null)
-
-    if (!editing && !data.password) {
-      setSubmitError('La contraseña es obligatoria para crear un usuario.')
-      return
-    }
-
     try {
+      const payload = { ...data, email: data.email || undefined }
       if (editing) {
-        const payload = { ...data }
-        if (!payload.password) delete payload.password
-        await updateItem('/users', editing.id, payload, 'PUT')
+        await updateItem('/proveedores', editing.id, payload, 'PATCH')
       } else {
-        await createItem('/users', data)
+        await createItem('/proveedores', payload)
       }
       setModalOpen(false)
       load()
     } catch (err) {
       console.error(err)
-      setSubmitError('No se pudo guardar el usuario. Revisá los datos e intentá de nuevo.')
+      setSubmitError('No se pudo guardar. Revisá los datos e intentá de nuevo.')
     }
   }
 
   async function confirmDelete() {
     if (!deleting) return
     try {
-      await deleteItem('/users', deleting.id)
+      await deleteItem('/proveedores', deleting.id)
       setDeleting(null)
       load()
     } catch (err) {
       console.error(err)
       setDeleting(null)
-      setError('No se pudo eliminar el usuario.')
+      setError('No se pudo eliminar el proveedor.')
     }
   }
 
   return (
     <div className="animated-fade-in">
-      <h1 className="admin-page-title">Usuarios</h1>
+      <h1 className="admin-page-title">Proveedores</h1>
 
       <div className="admin-toolbar">
         <input
           className="admin-search-input"
-          placeholder="Buscar por usuario..."
+          placeholder="Buscar por nombre..."
           value={search}
           onChange={(e) => {
             setPage(1)
@@ -146,47 +138,45 @@ function UsersPanel() {
           }}
         />
         <button className="admin-btn-primary" onClick={openCreate}>
-          + Nuevo Usuario
+          + Nuevo Proveedor
         </button>
       </div>
 
       <div className="admin-table-wrap">
         {loading ? (
-          <div className="admin-loading">Cargando usuarios...</div>
+          <div className="admin-loading">Cargando proveedores...</div>
         ) : error ? (
           <div className="admin-empty">{error}</div>
-        ) : users.length === 0 ? (
-          <div className="admin-empty">No hay usuarios que coincidan con la búsqueda.</div>
+        ) : proveedores.length === 0 ? (
+          <div className="admin-empty">No hay proveedores registrados.</div>
         ) : (
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Usuario</th>
                 <th>Nombre</th>
+                <th>País</th>
+                <th>Contacto</th>
+                <th>Teléfono</th>
                 <th>Email</th>
-                <th>Rol</th>
-                <th>Estado</th>
+                <th>Activo</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => (
-                <tr key={u.id}>
-                  <td>{u.username}</td>
-                  <td>{[u.nombre, u.apellido].filter(Boolean).join(' ') || '—'}</td>
-                  <td>{u.email}</td>
-                  <td>{u.role}</td>
-                  <td>
-                    <span className={`admin-badge ${u.isActive ? 'admin-badge-success' : 'admin-badge-danger'}`}>
-                      {u.isActive ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </td>
+              {proveedores.map((p) => (
+                <tr key={p.id}>
+                  <td>{p.nombre}</td>
+                  <td>{p.pais}</td>
+                  <td>{p.contacto}</td>
+                  <td>{p.telefono || '—'}</td>
+                  <td>{p.email || '—'}</td>
+                  <td>{p.activo ? 'Sí' : 'No'}</td>
                   <td>
                     <div className="admin-table-actions">
-                      <button className="admin-btn-secondary" onClick={() => openEdit(u)}>
+                      <button className="admin-btn-secondary" onClick={() => openEdit(p)}>
                         Editar
                       </button>
-                      <button className="admin-btn-danger" onClick={() => setDeleting(u)}>
+                      <button className="admin-btn-danger" onClick={() => setDeleting(p)}>
                         Eliminar
                       </button>
                     </div>
@@ -199,11 +189,7 @@ function UsersPanel() {
 
         {!loading && !error && totalPages > 1 && (
           <div className="admin-pagination">
-            <button
-              className="admin-btn-secondary"
-              disabled={page <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-            >
+            <button className="admin-btn-secondary" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
               Anterior
             </button>
             <span>
@@ -223,12 +209,29 @@ function UsersPanel() {
       {modalOpen && (
         <div className="admin-modal-backdrop" onClick={() => setModalOpen(false)}>
           <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>{editing ? 'Editar Usuario' : 'Nuevo Usuario'}</h3>
+            <h3>{editing ? 'Editar Proveedor' : 'Nuevo Proveedor'}</h3>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="admin-form-field">
-                <label htmlFor="username">Usuario</label>
-                <input id="username" {...register('username')} />
-                {errors.username && <span className="admin-form-error">{errors.username.message}</span>}
+                <label htmlFor="nombre">Nombre</label>
+                <input id="nombre" {...register('nombre')} />
+                {errors.nombre && <span className="admin-form-error">{errors.nombre.message}</span>}
+              </div>
+
+              <div className="admin-form-field">
+                <label htmlFor="pais">País</label>
+                <input id="pais" {...register('pais')} />
+                {errors.pais && <span className="admin-form-error">{errors.pais.message}</span>}
+              </div>
+
+              <div className="admin-form-field">
+                <label htmlFor="contacto">Contacto</label>
+                <input id="contacto" {...register('contacto')} />
+                {errors.contacto && <span className="admin-form-error">{errors.contacto.message}</span>}
+              </div>
+
+              <div className="admin-form-field">
+                <label htmlFor="telefono">Teléfono</label>
+                <input id="telefono" {...register('telefono')} />
               </div>
 
               <div className="admin-form-field">
@@ -238,37 +241,10 @@ function UsersPanel() {
               </div>
 
               <div className="admin-form-field">
-                <label htmlFor="password">{editing ? 'Nueva Contraseña (opcional)' : 'Contraseña'}</label>
-                <input id="password" type="password" {...register('password')} />
-                {errors.password && <span className="admin-form-error">{errors.password.message}</span>}
+                <label htmlFor="activo">
+                  <input id="activo" type="checkbox" {...register('activo')} /> Activo
+                </label>
               </div>
-
-              <div className="admin-form-field">
-                <label htmlFor="nombre">Nombre</label>
-                <input id="nombre" {...register('nombre')} />
-              </div>
-
-              <div className="admin-form-field">
-                <label htmlFor="apellido">Apellido</label>
-                <input id="apellido" {...register('apellido')} />
-              </div>
-
-              <div className="admin-form-field">
-                <label htmlFor="role">Rol</label>
-                <select id="role" {...register('role')}>
-                  <option value="USER">USER</option>
-                  <option value="ADMIN">ADMIN</option>
-                </select>
-              </div>
-
-              {editing && (
-                <div className="admin-form-field" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <input id="isActive" type="checkbox" style={{ width: 'auto' }} {...register('isActive')} />
-                  <label htmlFor="isActive" style={{ margin: 0 }}>
-                    Cuenta activa
-                  </label>
-                </div>
-              )}
 
               {submitError && <span className="admin-form-error">{submitError}</span>}
               <div className="admin-modal-actions">
@@ -287,7 +263,7 @@ function UsersPanel() {
       {deleting && (
         <div className="admin-modal-backdrop" onClick={() => setDeleting(null)}>
           <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>¿Eliminar este usuario?</h3>
+            <h3>¿Eliminar este proveedor?</h3>
             <p style={{ color: 'var(--text-secondary)' }}>Esta acción no se puede deshacer.</p>
             <div className="admin-modal-actions">
               <button className="admin-btn-secondary" onClick={() => setDeleting(null)}>
@@ -304,4 +280,4 @@ function UsersPanel() {
   )
 }
 
-export default UsersPanel
+export default ProveedoresPanel
