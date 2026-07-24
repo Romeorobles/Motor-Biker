@@ -77,6 +77,47 @@ export async function fetchMotos(): Promise<Moto[]> {
   }));
 }
 
+export async function fetchMotosPaginated(params: ListParams = {}): Promise<Paginated<Moto>> {
+  const { data: result } = await axiosClient.get('/motos', { params });
+
+  // El backend devuelve SuccessResponseDto con data: Pagination<Moto>
+  const paginated: Paginated<Moto> = result.data || result;
+  const motosRaw: Moto[] = paginated.items || [];
+
+  if (motosRaw.length === 0) {
+    return { items: [], meta: paginated.meta };
+  }
+
+  // Resolvemos marcas, estados, motores y categorías en paralelo con fallbacks
+  const [marcas, estados, motores, categorias] = await Promise.all([
+    fetchMarcas().catch(() => []),
+    fetchEstados().catch(() => []),
+    fetchMotores().catch(() => []),
+    fetchCategorias().catch(() => []),
+  ]);
+
+  const marcasMap = new Map(marcas.map((m) => [m.id, m.nombre]));
+  const estadosMap = new Map(estados.map((e) => [e.id, e.nombre]));
+  const motoresMap = new Map(motores.map((m) => [m.id, m.nombre]));
+  const categoriasMap = new Map(categorias.map((c) => [c.id, c.nombre]));
+
+  const itemsResolved = motosRaw.map((moto) => ({
+    ...moto,
+    marca_nombre: moto.marca_id ? marcasMap.get(moto.marca_id) || 'Marca Desconocida' : undefined,
+    estado_nombre: moto.estado_id ? estadosMap.get(moto.estado_id) || 'Estado Desconocido' : undefined,
+    tipo_motor_nombre: moto.tipo_motor_id ? motoresMap.get(moto.tipo_motor_id) || 'Motor Desconocido' : undefined,
+    categoria_nombre: moto.categoria_id ? categoriasMap.get(moto.categoria_id) || 'Categoría Desconocida' : undefined,
+    precio: Number(moto.precio),
+    // URL de la imagen de la motocicleta. Reemplazar por la URL correspondiente o usar fallback.
+    imagen_url: moto.imagen_url || '/sport_bike.jpg',
+  }));
+
+  return {
+    items: itemsResolved,
+    meta: paginated.meta,
+  };
+}
+
 export async function fetchMotoById(id: string): Promise<Moto | null> {
   const { data: result } = await axiosClient.get(`/motos/${id}`);
   const motoRaw: Moto = result.data || result;

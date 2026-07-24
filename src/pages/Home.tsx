@@ -25,10 +25,41 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [buscar, setBuscar] = useState('');
-  const [marca, setMarca] = useState('');
-  const [categoria, setCategoria] = useState('');
-  const [motor, setMotor] = useState('');
+  // States for backend pagination, search, sorting and limit
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState('modelo');
+  const [order, setOrder] = useState<'ASC' | 'DESC'>('ASC');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(8);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const [stats, setStats] = useState<Stats>({ motos: 0, marcas: 0, categorias: 0, stock: 0 });
+  const [marcasList, setMarcasList] = useState<Option[]>([]);
+  const [todasLasMotos, setTodasLasMotos] = useState<Moto[]>([]);
+
+  // Sidebar de filtros (marca / precio / cilindraje)
+  const [marcasSeleccionadas, setMarcasSeleccionadas] = useState<Set<string>>(new Set());
+  const [precioMax, setPrecioMax] = useState<number | null>(null);
+  const [cilindrajeMin, setCilindrajeMin] = useState<number | null>(null);
+
+  useEffect(() => {
+    Promise.all([
+      fetchAllPages<Moto>('/motos', 100),
+      fetchAllPages<Option>('/marcas', 100),
+      fetchAllPages<Option>('/categorias', 100),
+    ])
+      .then(([allMotos, marcas, categorias]) => {
+        setStats({
+          motos: allMotos.length,
+          marcas: marcas.length,
+          categorias: categorias.length,
+          stock: allMotos.reduce((sum, m) => sum + (m.stock || 0), 0),
+        });
+        setMarcasList(marcas);
+        setTodasLasMotos(allMotos);
+      })
+      .catch((err: any) => console.error('No se pudieron cargar las estadísticas', err));
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -42,14 +73,14 @@ function Home() {
       sort,
       order,
     })
-      .then((data) => {
+      .then((data: any) => {
         if (active) {
           setMotos(data.items);
           setTotalPages(data.meta.totalPages || 1);
           setLoading(false);
         }
       })
-      .catch((err) => {
+      .catch((err: any) => {
         if (active) {
           console.error(err);
           setError('No se pudieron cargar las motocicletas.');
@@ -63,11 +94,33 @@ function Home() {
   }, [page, limit, search, sort, order]);
 
   function limpiarFiltros() {
-    setBuscar('');
-    setMarca('');
-    setCategoria('');
-    setMotor('');
+    setSearch('');
+    setSort('modelo');
+    setOrder('ASC');
+    setPage(1);
+    setLimit(8);
+    setMarcasSeleccionadas(new Set());
+    setPrecioMax(null);
+    setCilindrajeMin(null);
   }
+
+  function toggleMarca(nombre: string) {
+    setMarcasSeleccionadas((prev) => {
+      const next = new Set(prev);
+      if (next.has(nombre)) next.delete(nombre);
+      else next.add(nombre);
+      return next;
+    });
+  }
+
+  const motosFiltradas = motos.filter((moto) => {
+    if (marcasSeleccionadas.size > 0 && !marcasSeleccionadas.has(moto.marca_nombre || '')) return false;
+    if (precioMax !== null && moto.precio > precioMax) return false;
+    if (cilindrajeMin !== null && (moto.cilindraje || 0) < cilindrajeMin) return false;
+    return true;
+  });
+
+  const filtrosSidebarActivos = marcasSeleccionadas.size > 0 || precioMax !== null || cilindrajeMin !== null;
 
   return (
     <>
@@ -133,65 +186,208 @@ function Home() {
           </p>
         </header>
 
-      <div className="filter-bar animated-fade-in">
-        <input
-          type="text"
-          className="filter-input"
-          placeholder="Buscar por modelo"
-          value={buscar}
-          onChange={(e) => setBuscar(e.target.value)}
-        />
-        <input
-          type="text"
-          className="filter-input"
-          placeholder="Buscar por marca"
-          value={marca}
-          onChange={(e) => setMarca(e.target.value)}
-        />
-        <input
-          type="text"
-          className="filter-input"
-          placeholder="Buscar por categoría"
-          value={categoria}
-          onChange={(e) => setCategoria(e.target.value)}
-        />
-        <input
-          type="text"
-          className="filter-input"
-          placeholder="Buscar por motor"
-          value={motor}
-          onChange={(e) => setMotor(e.target.value)}
-        />
-        <button type="button" className="btn-clear-filters" onClick={limpiarFiltros}>
-          Limpiar filtros
-        </button>
+        {/* Advanced Catalog Filters */}
+        <div className="filter-bar animated-fade-in">
+          {/* Search by Model */}
+          <input
+            type="text"
+            className="filter-input"
+            placeholder="Buscar por modelo"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1); // Reset page on search change
+            }}
+          />
+
+          {/* Sort Field */}
+          <select
+            className="filter-input"
+            value={sort}
+            onChange={(e) => {
+              setSort(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="modelo">Ordenar por Modelo</option>
+            <option value="precio">Ordenar por Precio</option>
+            <option value="anio">Ordenar por Año</option>
+            <option value="stock">Ordenar por Stock</option>
+          </select>
+
+          {/* Sort Order */}
+          <select
+            className="filter-input"
+            value={order}
+            onChange={(e) => {
+              setOrder(e.target.value as 'ASC' | 'DESC');
+              setPage(1);
+            }}
+          >
+            <option value="ASC">Orden Ascendente</option>
+            <option value="DESC">Orden Descendente</option>
+          </select>
+
+          {/* Limit Selector */}
+          <select
+            className="filter-input"
+            value={limit}
+            onChange={(e) => {
+              setLimit(Number(e.target.value));
+              setPage(1);
+            }}
+          >
+            <option value={4}>4 por página</option>
+            <option value={8}>8 por página</option>
+            <option value={12}>12 por página</option>
+            <option value={16}>16 por página</option>
+          </select>
+
+          <button type="button" className="btn-clear-filters" onClick={limpiarFiltros}>
+            Limpiar filtros
+          </button>
+        </div>
+
+        <div className="catalog-layout">
+          {/* Sidebar de filtros */}
+          <aside className="catalog-sidebar animated-fade-in">
+            <h3 className="sidebar-title">Filtrar por</h3>
+
+            <div className="sidebar-group">
+              <h4>Marca</h4>
+              {marcasList.map((m) => (
+                <label key={m.id} className="sidebar-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={marcasSeleccionadas.has(m.nombre)}
+                    onChange={() => toggleMarca(m.nombre)}
+                  />
+                  {m.nombre}
+                </label>
+              ))}
+              {marcasList.length === 0 && <p className="sidebar-empty">Sin marcas cargadas</p>}
+            </div>
+
+            <div className="sidebar-group">
+              <h4>Precio máximo</h4>
+              {[3000, 6000, 10000].map((p) => (
+                <label key={p} className="sidebar-checkbox">
+                  <input
+                    type="radio"
+                    name="precioMax"
+                    checked={precioMax === p}
+                    onChange={() => setPrecioMax(p)}
+                  />
+                  Hasta ${p.toLocaleString()}
+                </label>
+              ))}
+              <label className="sidebar-checkbox">
+                <input type="radio" name="precioMax" checked={precioMax === null} onChange={() => setPrecioMax(null)} />
+                Cualquier precio
+              </label>
+            </div>
+
+            <div className="sidebar-group">
+              <h4>Cilindraje mínimo</h4>
+              {[125, 250, 600].map((c) => (
+                <label key={c} className="sidebar-checkbox">
+                  <input
+                    type="radio"
+                    name="cilindrajeMin"
+                    checked={cilindrajeMin === c}
+                    onChange={() => setCilindrajeMin(c)}
+                  />
+                  Desde {c}cc
+                </label>
+              ))}
+              <label className="sidebar-checkbox">
+                <input
+                  type="radio"
+                  name="cilindrajeMin"
+                  checked={cilindrajeMin === null}
+                  onChange={() => setCilindrajeMin(null)}
+                />
+                Cualquier cilindraje
+              </label>
+            </div>
+          </aside>
+
+          {/* Catálogo */}
+          <div className="catalog-main">
+            {loading ? (
+              <div className="text-center py-5">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Cargando...</span>
+                </div>
+                <p className="mt-3 text-muted">Buscando las mejores motos para ti...</p>
+              </div>
+            ) : error ? (
+              <div className="alert alert-danger text-center glass-card my-4" role="alert">
+                {error}
+              </div>
+            ) : motosFiltradas.length === 0 ? (
+              <div className="text-center py-5 text-muted">
+                Ninguna moto coincide con los filtros aplicados.
+              </div>
+            ) : (
+              <>
+                <div className="row g-4 justify-content-center">
+                  {motosFiltradas.map((moto, i) => (
+                    <div
+                      key={moto.id}
+                      className="col-12 col-md-6 col-xl-4"
+                      style={{ animationDelay: `${i * 0.06}s` }}
+                    >
+                      <MotoCard moto={moto} />
+                    </div>
+                  ))}
+                </div>
+
+                {!filtrosSidebarActivos && totalPages > 1 && (
+                  <div className="d-flex justify-content-center align-items-center gap-3 mt-5">
+                    <button
+                      className="btn btn-outline-light px-4"
+                      disabled={page <= 1}
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    >
+                      Anterior
+                    </button>
+                    <span className="text-muted">
+                      Página <strong>{page}</strong> de {totalPages}
+                    </span>
+                    <button
+                      className="btn btn-outline-light px-4"
+                      disabled={page >= totalPages}
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    >
+                      Siguiente
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
-      {loading ? (
-        <div className="text-center py-5">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Cargando...</span>
-          </div>
-          <p className="mt-3 text-muted">Buscando las mejores motos para ti...</p>
-        </div>
-      ) : error ? (
-        <div className="alert alert-danger text-center glass-card my-4" role="alert">
-          {error}
-        </div>
-      ) : motosFiltradas.length === 0 ? (
-        <div className="text-center py-5 text-muted">
-          Ninguna moto coincide con los filtros aplicados.
-        </div>
-      ) : (
-        <div className="row g-4 justify-content-center">
-          {motosFiltradas.map((moto) => (
-            <div key={moto.id} className="col-12 col-md-6 col-lg-4 col-xl-3">
-              <MotoCard moto={moto} />
+      <FinancingCalculator />
+
+      {/* Marcas */}
+      {marcasList.length > 0 && (
+        <section className="brands-section">
+          <div className="container">
+            <h2 className="brands-title">Marcas con las que trabajamos</h2>
+            <div className="brands-list">
+              {marcasList.map((m) => (
+                <span key={m.id} className="brand-pill">
+                  {m.nombre}
+                </span>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        </section>
       )}
-    </div>
+    </>
   );
 }
 
